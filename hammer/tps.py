@@ -12,7 +12,7 @@
 """
 
 
-import time, timeit, sys, os, json
+import time, timeit, sys, os, json, shutil, base64, psutil
 
 from web3 import Web3, HTTPProvider
 
@@ -89,6 +89,8 @@ def analyzeNewBlocks(blockNumber, newBlockNumber, txCount, start_time, peakTpsAv
     ts_blockNumber =    w3.eth.getBlock(   blockNumber).timestamp
     ts_newBlockNumber = w3.eth.getBlock(newBlockNumber).timestamp
     ts_diff = ts_newBlockNumber - ts_blockNumber
+    block_txs = w3.eth.getBlock(newBlockNumber).transactions
+    block_size = w3.eth.getBlock(newBlockNumber).size
     
     blocktimeSeconds = timestampToSeconds(ts_diff, NODENAME, CONSENSUS) 
 
@@ -117,7 +119,7 @@ def analyzeNewBlocks(blockNumber, newBlockNumber, txCount, start_time, peakTpsAv
                     tps_current, txCount, elapsed, tpsAv, verb, peakTpsAv) 
     print (line)
     
-    return txCount, peakTpsAv, tpsAv
+    return txCount, peakTpsAv, tpsAv, block_txs, ts_newBlockNumber, block_size
 
 
 def sendingEndedFiledate():
@@ -137,6 +139,17 @@ def readInfofile(fn=FILE_LAST_EXPERIMENT):
 class CodingError(Exception):
     pass
 
+def calculate(t1, t2):
+    t1_all = sum(t1)
+    t1_busy = t1_all - t1.idle
+    t2_all = sum(t2)
+    t2_busy = t2_all - t2.idle
+    if t2_busy <= t1_busy:
+        return 0.0
+    busy_delta = t2_busy - t1_busy
+    all_delta = t2_all - t1_all
+    busy_perc = (busy_delta / all_delta) * 100
+    return round(busy_perc, 1)
 
 def getNearestEntry(myDict, myIndex):
     """
@@ -198,13 +211,17 @@ def measurement(blockNumber, pauseBetweenQueries=0.3,
     counterStart, blocknumberEnd = 0, -1
     
     tpsAv = {} # memorize all of them, so we can return value at 'block_last'
-    
+    blocks_txs = {}
+    ts_blocks = {}
+    blocks_size = {}
+    cpu_time_a = (time.time(), psutil.cpu_times())
+    initialTotal, initialUsed, initialFree = shutil.disk_usage("/")
     while(True):
         newBlockNumber=w3.eth.blockNumber
         
         if(blockNumber!=newBlockNumber): # when a new block appears:
             args = (blockNumber, newBlockNumber, txCount, start_time, peakTpsAv)
-            txCount, peakTpsAv, tpsAv[newBlockNumber] = analyzeNewBlocks(*args)
+            txCount, peakTpsAv, tpsAv[newBlockNumber], blocks_txs[newBlockNumber], ts_blocks[newBlockNumber], blocks_size[newBlockNumber]  = analyzeNewBlocks(*args)
             blockNumber = newBlockNumber
             
             
@@ -236,19 +253,37 @@ def measurement(blockNumber, pauseBetweenQueries=0.3,
         time.sleep(pauseBetweenQueries) # do not query too often; as little side effect on node as possible
         
     # print ("end")   # N.B.: it never gets here !
+    finalTotal, finalUsed, finalFree = shutil.disk_usage("/")
+    cpu_time_b = (time.time(), psutil.cpu_times())
+    cpu_usage = calculate(cpu_time_a[1], cpu_time_b[1])
     txt = "Experiment ended! Current blocknumber = %d"
     txt = txt % (w3.eth.blockNumber)
     print (txt)
-    return peakTpsAv, finalTpsAv, start_epochtime
+    return peakTpsAv, finalTpsAv, start_epochtime, initialUsed, finalUsed, blocks_txs, ts_blocks, blocks_size, cpu_usage
 
-
-def addMeasurementToFile(peakTpsAv, finalTpsAv, start_epochtime, fn=FILE_LAST_EXPERIMENT):
+def addMeasurementToFile(peakTpsAv, finalTpsAv, start_epochtime, initialUsed, finalUsed, blocks_txs, ts_block, blocks_size,cpu_usage, fn=FILE_LAST_EXPERIMENT):
     with open(fn, "r") as f:
         data = json.load(f)
     data["tps"]={}
     data["tps"]["peakTpsAv"] = peakTpsAv
     data["tps"]["finalTpsAv"] = finalTpsAv
     data["tps"]["start_epochtime"] = start_epochtime
+    data["initialUsed"] = initialUsed
+    data["finalUsed"] = finalUsed
+    data["blocks_txs"] = {}
+    txs = {}
+    for i,v in blocks_txs.items():
+        convert = {}
+        for y in range(len(blocks_txs[i])):
+            convert[y] = blocks_txs[i][y].hex()
+        txs[i] = convert
+    data["blocks_txs"] = txs
+    data["ts_block"] = {}
+    data["ts_block"] = ts_block
+    data["blocks_size"] = {}
+    data["blocks_size"] = blocks_size
+    data["cpu_usage"] = {}
+    data["cpu_usage"] = cpu_usage
 
     with open(fn, "w") as f:
         json.dump(data, f)
@@ -267,9 +302,9 @@ if __name__ == '__main__':
     blocknumber_start_here = w3.eth.blockNumber 
     print ("\nblocknumber_start_here =", blocknumber_start_here)
     
-    peakTpsAv, finalTpsAv, start_epochtime = measurement( blocknumber_start_here )
+    peakTpsAv, finalTpsAv, start_epochtime, initialUsed, finalUsed, blocks_txs, ts_block, blocks_size,cpu_usage = measurement( blocknumber_start_here )
     
-    addMeasurementToFile(peakTpsAv, finalTpsAv, start_epochtime, FILE_LAST_EXPERIMENT)
+    addMeasurementToFile(peakTpsAv, finalTpsAv, start_epochtime, initialUsed, finalUsed, blocks_txs, ts_block, blocks_size,cpu_usage, FILE_LAST_EXPERIMENT)
     print ("Updated info file:", FILE_LAST_EXPERIMENT, "THE END.")
    
     

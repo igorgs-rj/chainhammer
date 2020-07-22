@@ -50,7 +50,7 @@ RPCaddress2='http://localhost:8545'
 TIMEOUT_DEPLOY = 300
 
 ## submit transaction via web3 or directly via RPC
-ROUTE = "RPC"  # "web3" "RPC"
+ROUTE = "web3"  # "web3" "RPC"
 
 # parity's idiosyncracy:
 # 'Time-unlocking is only supported in --geth compatibility mode.'
