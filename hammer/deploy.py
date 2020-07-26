@@ -138,7 +138,7 @@ def trySmartContractMethods(myContract, gasForSetCall=GAS_FOR_SET_CALL):
     print('.set()')
     txParameters = {'from': w3.eth.defaultAccount,
                     'gas' : gasForSetCall}
-    tx = myContract.functions.set(answer1 + 1).transact(txParameters)
+    tx = myContract.functions.insertTransaction('exemplo','url',arg).transact(txParameters)
     tx_hash = w3.toHex( tx )
     print ("transaction", tx_hash, "... "); sys.stdout.flush()
     tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
@@ -162,7 +162,7 @@ if __name__ == '__main__':
     if len(sys.argv)>1 and sys.argv[1]=="andtests":
         contractAddress, abi = loadFromDisk()
         myContract = contractObject(contractAddress, abi)
-        trySmartContractMethods(myContract)
+        #trySmartContractMethods(myContract)
     
     
     

@@ -67,7 +67,7 @@ def contract_set_via_web3(contract, arg, hashes = None, privateFor=PRIVATE_FOR, 
     if PARITY_UNLOCK_EACH_TRANSACTION:
         unlockAccount()
         
-    tx = contract.functions.set( x=arg ).transact(txParameters)
+    tx = contract.functions.insertTransaction('exemplo','url',arg).transact(txParameters)
     # print ("[sent via web3]", end=" ")  # TODO: not print this here but at start
     print (".", end=" ")  # TODO: not print this here but at start
     tx = w3.toHex(tx)
