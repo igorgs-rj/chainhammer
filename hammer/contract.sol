@@ -3,30 +3,21 @@
 
 pragma solidity ^0.4.21;
 
-contract FinancialTransaction {
-    struct transaction {
-        address owner;
-        string description;
-        string url;
-        int value;
-        uint256 timestamp;
-        uint256 flag;
-    }
+contract simplestorage {
+  uint public storedData;
 
-    mapping (uint256 => transaction) public transactions;
+  function set(uint x) {
+    storedData = x;        // uses ~26691 gas
+    
+    // try failing transactions:
+    // assert ( 1 == 0 );  // uses up all 90000 given gas
+    // revert();           // uses 41686 gas
+    // throw;              // same as revert(); 
+    // require ( 1 == 0 ); // uses 41714 gas
+  }
 
-    uint public totalTransactions;
-
-    constructor() public {
-       totalTransactions = 0;
-    }
-
-    function insertTransaction (string  memory description, string  memory url, int  value) public returns (uint256){
-        uint256 id = totalTransactions+1;
-        transaction memory newTransaction = transaction(msg.sender, description, url, value, now, 1);
-        transactions[id] = newTransaction;
-        totalTransactions++;
-        return id;
-    }
-
+  function get() constant returns (uint retVal) {
+    return storedData;
+  }
 }
+
