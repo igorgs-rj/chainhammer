@@ -74,7 +74,7 @@ def timestampToSeconds(timestamp, NODENAME, CONSENSUS):
     return timestamp / timeunits
  
 
-def analyzeNewBlocks(blockNumber, newBlockNumber, txCount, start_time, peakTpsAv):
+def analyzeNewBlocks(blockNumber, newBlockNumber, txCount, start_time, peakTpsAv, start_epochtime):
     """
     iterate through all new blocks, add up number of transactions
     print status line
@@ -94,6 +94,8 @@ def analyzeNewBlocks(blockNumber, newBlockNumber, txCount, start_time, peakTpsAv
     
     blocktimeSeconds = timestampToSeconds(ts_diff, NODENAME, CONSENSUS) 
 
+    latdif = ts_newBlockNumber - start_epochtime
+    lat = timestampToSeconds(latdif, NODENAME, CONSENSUS) 
     try:
         tps_current = txCount_new / blocktimeSeconds
     except ZeroDivisionError:
@@ -119,7 +121,7 @@ def analyzeNewBlocks(blockNumber, newBlockNumber, txCount, start_time, peakTpsAv
                     tps_current, txCount, elapsed, tpsAv, verb, peakTpsAv) 
     print (line)
     
-    return txCount, peakTpsAv, tpsAv, block_txs, ts_newBlockNumber, block_size
+    return txCount, peakTpsAv, tpsAv, block_txs, ts_newBlockNumber, block_size, lat
 
 
 def sendingEndedFiledate():
@@ -214,14 +216,15 @@ def measurement(blockNumber, pauseBetweenQueries=0.3,
     blocks_txs = {}
     ts_blocks = {}
     blocks_size = {}
+    lat = {}
     cpu_time_a = (time.time(), psutil.cpu_times())
     initialTotal, initialUsed, initialFree = shutil.disk_usage("/")
     while(True):
         newBlockNumber=w3.eth.blockNumber
         
         if(blockNumber!=newBlockNumber): # when a new block appears:
-            args = (blockNumber, newBlockNumber, txCount, start_time, peakTpsAv)
-            txCount, peakTpsAv, tpsAv[newBlockNumber], blocks_txs[newBlockNumber], ts_blocks[newBlockNumber], blocks_size[newBlockNumber]  = analyzeNewBlocks(*args)
+            args = (blockNumber, newBlockNumber, txCount, start_time, peakTpsAv, start_epochtime)
+            txCount, peakTpsAv, tpsAv[newBlockNumber], blocks_txs[newBlockNumber], ts_blocks[newBlockNumber], blocks_size[newBlockNumber], lat[newBlockNumber]  = analyzeNewBlocks(*args)
             blockNumber = newBlockNumber
             
             
@@ -259,9 +262,9 @@ def measurement(blockNumber, pauseBetweenQueries=0.3,
     txt = "Experiment ended! Current blocknumber = %d"
     txt = txt % (w3.eth.blockNumber)
     print (txt)
-    return peakTpsAv, finalTpsAv, start_epochtime, initialUsed, finalUsed, blocks_txs, ts_blocks, blocks_size, cpu_usage
+    return peakTpsAv, finalTpsAv, start_epochtime, initialUsed, finalUsed, blocks_txs, ts_blocks, blocks_size, cpu_usage, lat
 
-def addMeasurementToFile(peakTpsAv, finalTpsAv, start_epochtime, initialUsed, finalUsed, blocks_txs, ts_block, blocks_size,cpu_usage, fn=FILE_LAST_EXPERIMENT):
+def addMeasurementToFile(peakTpsAv, finalTpsAv, start_epochtime, initialUsed, finalUsed, blocks_txs, ts_block, blocks_size,cpu_usage,lat, fn=FILE_LAST_EXPERIMENT):
     with open(fn, "r") as f:
         data = json.load(f)
     data["tps"]={}
@@ -284,6 +287,8 @@ def addMeasurementToFile(peakTpsAv, finalTpsAv, start_epochtime, initialUsed, fi
     data["blocks_size"] = blocks_size
     data["cpu_usage"] = {}
     data["cpu_usage"] = cpu_usage
+    data["lat"] = {}
+    data["lat"] = lat
 
     with open(fn, "w") as f:
         json.dump(data, f)
@@ -302,9 +307,9 @@ if __name__ == '__main__':
     blocknumber_start_here = w3.eth.blockNumber 
     print ("\nblocknumber_start_here =", blocknumber_start_here)
     
-    peakTpsAv, finalTpsAv, start_epochtime, initialUsed, finalUsed, blocks_txs, ts_block, blocks_size,cpu_usage = measurement( blocknumber_start_here )
+    peakTpsAv, finalTpsAv, start_epochtime, initialUsed, finalUsed, blocks_txs, ts_block, blocks_size,cpu_usage, lat = measurement( blocknumber_start_here )
     
-    addMeasurementToFile(peakTpsAv, finalTpsAv, start_epochtime, initialUsed, finalUsed, blocks_txs, ts_block, blocks_size,cpu_usage, FILE_LAST_EXPERIMENT)
+    addMeasurementToFile(peakTpsAv, finalTpsAv, start_epochtime, initialUsed, finalUsed, blocks_txs, ts_block, blocks_size,cpu_usage,lat, FILE_LAST_EXPERIMENT)
     print ("Updated info file:", FILE_LAST_EXPERIMENT, "THE END.")
    
     
