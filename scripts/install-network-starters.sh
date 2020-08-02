@@ -28,8 +28,8 @@ echo
 rm -rf drandreaskrueger_geth-dev
 echo javahippie/geth-dev my configured fork drandreaskrueger/geth-dev 
 git clone https://github.com/igorgs-rj/geth-dev.git drandreaskrueger_geth-dev
-git checkout $QTD_NODE
 cd drandreaskrueger_geth-dev
+git checkout $QTD_NODE
 echo TODO: Perhaps instead clone from upstream and patch with chainhammer-specific parameters?
 cd ..
 
