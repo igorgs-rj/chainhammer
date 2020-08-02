@@ -20,10 +20,6 @@ cd paritytech_parity-deploy
 git checkout 1a6afd17ac75bdf6c9e9fefa1d3af13748dd9cfa
 cd ..
 
-if [ -z "$QTD_NODE" ]; then 
-    QTD_NODE=3node
-fi
-
 echo
 rm -rf drandreaskrueger_geth-dev
 echo javahippie/geth-dev my configured fork drandreaskrueger/geth-dev 
