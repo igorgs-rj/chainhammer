@@ -73,7 +73,11 @@ if [ "$1" == "nodocker" ]; then
 else
     install_chapter "scripts/install-docker.sh $2"
     install_chapter scripts/install-docker-compose.sh
-    install_chapter scripts/install-network-starters.sh
+    if [ -z "$QTDNODE" ]; then
+        install_chapter "scripts/install-network-starters.sh $QTDNODE"
+    else
+        install_chapter "scripts/install-network-starters.sh master"
+    fi
 fi
 
 # solc    
