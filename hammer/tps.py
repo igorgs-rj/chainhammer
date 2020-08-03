@@ -262,11 +262,13 @@ def measurement(blockNumber, pauseBetweenQueries=0.3,
     txt = "Experiment ended! Current blocknumber = %d"
     txt = txt % (w3.eth.blockNumber)
     print (txt)
-    return peakTpsAv, finalTpsAv, start_epochtime, initialUsed, finalUsed, blocks_txs, ts_blocks, blocks_size, cpu_usage, lat
+    return peakTpsAv, finalTpsAv, start_epochtime, initialUsed, finalUsed, blocks_txs, ts_blocks, blocks_size, cpu_usage, lat, tpsAv
 
-def addMeasurementToFile(peakTpsAv, finalTpsAv, start_epochtime, initialUsed, finalUsed, blocks_txs, ts_block, blocks_size,cpu_usage,lat, fn=FILE_LAST_EXPERIMENT):
+def addMeasurementToFile(peakTpsAv, finalTpsAv, start_epochtime, initialUsed, finalUsed, blocks_txs, ts_block, blocks_size,cpu_usage,lat,tpsAv, fn=FILE_LAST_EXPERIMENT):
     with open(fn, "r") as f:
         data = json.load(f)
+    data["alltps"] = {}
+    data["alltps"] = tpsAv
     data["tps"]={}
     data["tps"]["peakTpsAv"] = peakTpsAv
     data["tps"]["finalTpsAv"] = finalTpsAv
@@ -307,9 +309,9 @@ if __name__ == '__main__':
     blocknumber_start_here = w3.eth.blockNumber 
     print ("\nblocknumber_start_here =", blocknumber_start_here)
     
-    peakTpsAv, finalTpsAv, start_epochtime, initialUsed, finalUsed, blocks_txs, ts_block, blocks_size,cpu_usage, lat = measurement( blocknumber_start_here )
+    peakTpsAv, finalTpsAv, start_epochtime, initialUsed, finalUsed, blocks_txs, ts_block, blocks_size,cpu_usage, lat, tpsAv = measurement( blocknumber_start_here )
     
-    addMeasurementToFile(peakTpsAv, finalTpsAv, start_epochtime, initialUsed, finalUsed, blocks_txs, ts_block, blocks_size,cpu_usage,lat, FILE_LAST_EXPERIMENT)
+    addMeasurementToFile(peakTpsAv, finalTpsAv, start_epochtime, initialUsed, finalUsed, blocks_txs, ts_block, blocks_size,cpu_usage,lat, tpsAv, FILE_LAST_EXPERIMENT)
     print ("Updated info file:", FILE_LAST_EXPERIMENT, "THE END.")
    
     
