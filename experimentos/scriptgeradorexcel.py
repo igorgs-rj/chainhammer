@@ -18,11 +18,18 @@ formatedDataBlocksSizes = {}
 formatedDataAvgCpu = {}
 formatedDataPeakTps = {}
 formatedDataLat = {}
+formatedDataAllTps = {}
 
 for x in files:
     if x.endswith(".json"):
         with open(x, "r") as f:
             data = json.load(f)
+        vTpsBlock = sorted(data["alltps"].items(), key = lambda x: int(x[0]))
+        formatedDataAllTps[x] = {}
+        formatedDataAllTps[x]["tps"] =  []
+        for k,v in vTpsBlock:
+            formatedDataAllTps[x]["tps"].append(v)
+
         vBlock = sorted(data["blocks_txs"].items(), key = lambda x: int(x[0]))
         formatedDataTxsBlocks[x] = {}
         formatedDataTxsBlocks[x]["txs_per_block"] =  []
@@ -63,3 +70,6 @@ with open("resultados/peaktps.json", "w") as f:
 
 with open("resultados/lat.json", "w") as f:
     json.dump(formatedDataLat, f)
+
+with open("resultados/tps.json", "w") as f:
+    json.dump(formatedDataAllTps, f)
