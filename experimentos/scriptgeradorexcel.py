@@ -26,9 +26,9 @@ for x in files:
             data = json.load(f)
         vTpsBlock = sorted(data["alltps"].items(), key = lambda x: int(x[0]))
         formatedDataAllTps[x] = {}
-        formatedDataAllTps[x]["tps"] =  []
+        formatedDataAllTps[x]["alltps"] =  []
         for k,v in vTpsBlock:
-            formatedDataAllTps[x]["tps"].append(v)
+            formatedDataAllTps[x]["alltps"].append(v)
 
         vBlock = sorted(data["blocks_txs"].items(), key = lambda x: int(x[0]))
         formatedDataTxsBlocks[x] = {}
