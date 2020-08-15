@@ -25,33 +25,33 @@ for x in files:
         with open(x, "r") as f:
             data = json.load(f)
         vTpsBlock = sorted(data["alltps"].items(), key = lambda x: int(x[0]))
-        formatedDataAllTps[x] = {}
-        formatedDataAllTps[x]["alltps"] =  []
+        formatedDataAllTps[x.split('.')[0]] = {}
+        formatedDataAllTps[x.split('.')[0]]["alltps"] =  []
         for k,v in vTpsBlock:
-            formatedDataAllTps[x]["alltps"].append(v)
+            formatedDataAllTps[x.split('.')[0]]["alltps"].append(v)
 
         vBlock = sorted(data["blocks_txs"].items(), key = lambda x: int(x[0]))
-        formatedDataTxsBlocks[x] = {}
-        formatedDataTxsBlocks[x]["txs_per_block"] =  []
+        formatedDataTxsBlocks[x.split('.')[0]] = {}
+        formatedDataTxsBlocks[x.split('.')[0]]["txs_per_block"] =  []
         for k,v in vBlock:
-            formatedDataTxsBlocks[x]["txs_per_block"].append(len(v))
+            formatedDataTxsBlocks[x.split('.')[0]]["txs_per_block"].append(len(v))
 
         vLat = sorted(data["lat"].items(), key = lambda x: int(x[0]))
-        formatedDataLat[x] = {}
-        formatedDataLat[x]["lat"] =  []
+        formatedDataLat[x.split('.')[0]] = {}
+        formatedDataLat[x.split('.')[0]]["lat"] =  []
         for k,v in vLat:
-            formatedDataLat[x]["lat"].append(int(v))
+            formatedDataLat[x.split('.')[0]]["lat"].append(int(v))
 
         vSize = sorted(data["blocks_size"].items(), key = lambda x: int(x[0]))
-        formatedDataBlocksSizes[x] = {}
-        formatedDataBlocksSizes[x]["size"] =  []
+        formatedDataBlocksSizes[x.split('.')[0]] = {}
+        formatedDataBlocksSizes[x.split('.')[0]]["size"] =  []
         for k,v in vSize:
-            formatedDataBlocksSizes[x]["size"].append(v)
+            formatedDataBlocksSizes[x.split('.')[0]]["size"].append(v)
 
-        formatedDataAvgCpu[x] = {}
-        formatedDataAvgCpu[x]["avg_cpu_usage"] = data["cpu_usage"]
-        formatedDataPeakTps[x] = {}
-        formatedDataPeakTps[x]["peak_Tps"] = data["tps"]["peakTpsAv"]
+        formatedDataAvgCpu[x.split('.')[0]] = {}
+        formatedDataAvgCpu[x.split('.')[0]]["avg_cpu_usage"] = data["cpu_usage"]
+        formatedDataPeakTps[x.split('.')[0]] = {}
+        formatedDataPeakTps[x.split('.')[0]]["peak_Tps"] = data["tps"]["peakTpsAv"]
         
 
         
