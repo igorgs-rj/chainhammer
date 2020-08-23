@@ -114,22 +114,22 @@ sleep 2
 echo
 
 
-title blocksDB_create.py
-echo read blocks from node1 into SQL db
-cd ../reader
-./blocksDB_create.py $DBFILE ../$INFOFILE
-echo
+# title blocksDB_create.py
+# echo read blocks from node1 into SQL db
+# cd ../reader
+# ./blocksDB_create.py $DBFILE ../$INFOFILE
+# echo
 
-title blocksDB_diagramming.py
-echo make time series diagrams from SQL db
-./blocksDB_diagramming.py $DBFILE $INFOWORD ../$INFOFILE
-echo 
+# title blocksDB_diagramming.py
+# echo make time series diagrams from SQL db
+# ./blocksDB_diagramming.py $DBFILE $INFOWORD ../$INFOFILE
+# echo 
 
-title page_generator.py
-./page_generator.py ../$INFOFILE ../$TPSLOG
-echo 
+# title page_generator.py
+# ./page_generator.py ../$INFOFILE ../$TPSLOG
+# echo 
 
-cd ..
+# cd ..
 
 # switch off the trap already here, because sometimes the 2nd kill in networks/$2-stop.sh is not needed anymore:
 set +e

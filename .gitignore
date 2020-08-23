@@ -15,9 +15,6 @@ env
 *.db
 !testing_EXAMPLE-DB.db
 
-# account passphrase file
-account-passphrase.txt
-
 # regenerated on the fly anyways:
 contract-abi.json
 contract-address.json
