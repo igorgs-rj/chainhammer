@@ -28,5 +28,13 @@ contract FinancialTransaction {
         totalTransactions++;
         return id;
     }
-
+    
+    function getTransaction(uint256 id) public view returns(uint256, address, string memory, string memory, int, uint256){
+        if(transactions[id].flag == 1){
+            return (id, transactions[id].owner, transactions[id].description, transactions[id].url, transactions[id].value, transactions[id].timestamp);
+        }else{
+            revert('Transaction not found');
+        }
+    }
+    
 }
